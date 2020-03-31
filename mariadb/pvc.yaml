@@ -4,6 +4,8 @@ metadata:
   name: mariadb-pvc
   labels:
     app: wordpress
+  annotations:
+    k8up.syn.tools/backup: "true"
 spec:
   accessModes:
     - ReadWriteMany
