@@ -5,4 +5,4 @@
 # by the `4_restore.sh` script.
 
 echo "Restoring database in pod"
-mysql -uroot -p"${MARIADB_ROOT_PASSWORD}" < /backup.sql
+mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" < /var/lib/mysql/backup.sql

@@ -15,7 +15,7 @@ metadata:
 parameters:
 - name: APPLICATION_NAME
   description: The name of the WordPress instance.
-  value: wordpress-test
+  value: wordpress
   from: "[a-zA-Z0-9]"
   required: true
 - name: WORDPRESS_VOLUME_SIZE
@@ -41,22 +41,6 @@ parameters:
 - name: DATABASE_MEMORY_LIMIT
   description: Amount of memory available to the database.
   value: 512Mi
-  required: true
-- description: The name of the database user.
-  name: DATABASE_USERNAME
-  from: user[a-f0-9]{8}
-  generate: expression
-- description: The password for the database user.
-  name: DATABASE_PASSWORD
-  from: "[a-zA-Z0-9]{12}"
-  generate: expression
-- name: DATABASE_ROOT_PASSWORD
-  description: The password for root database container.
-  from: "[a-zA-Z0-9]{12}"
-  generate: expression
-- name: MYSQL_VERSION
-  description: The version of the MySQL database.
-  value: '5.7'
   required: true
 objects:
 - kind: ImageStream
@@ -191,12 +175,13 @@ objects:
           env:
           - name: WORDPRESS_DB_NAME
             value: wordpress
-          - name: WORDPRESS_DB_USER
-            value: "${DATABASE_USERNAME}"
           - name: WORDPRESS_DB_PASSWORD
-            value: "${DATABASE_PASSWORD}"
+            valueFrom:
+              secretKeyRef:
+                name: mariadb-pass
+                key: password
           - name: WORDPRESS_DB_HOST
-            value: "${APPLICATION_NAME}-db"
+            value: "mariadb"
           - name: WORDPRESS_TABLE_PREFIX
             value: wp_
           volumeMounts:
@@ -205,7 +190,7 @@ objects:
 - kind: DeploymentConfig
   apiVersion: v1
   metadata:
-    name: "${APPLICATION_NAME}-db"
+    name: "mariadb"
     labels:
       app: "${APPLICATION_NAME}"
   spec:
@@ -216,14 +201,14 @@ objects:
     replicas: 1
     selector:
       app: "${APPLICATION_NAME}"
-      deploymentconfig: "${APPLICATION_NAME}-db"
+      deploymentconfig: "mariadb"
     template:
       metadata:
         labels:
           app: "${APPLICATION_NAME}"
-          deploymentconfig: "${APPLICATION_NAME}-db"
+          deploymentconfig: "mariadb"
         annotations:
-          appuio.ch/backupcommand: /bin/bash -c 'mysqldump -u$MYSQL_USER -p"${MYSQL_PASSWORD}" --all-databases'
+          appuio.ch/backupcommand: /bin/bash -c 'mysqldump -uroot -p"${MYSQL_ROOT_PASSWORD}" --all-databases'
       spec:
         volumes:
         - name: data
@@ -231,7 +216,7 @@ objects:
             claimName: "${APPLICATION_NAME}-mysql-data"
         containers:
         - name: mysql
-          image: mysql:${MYSQL_VERSION}
+          image: mariadb:10.4
           imagePullPolicy: Always
           ports:
           - containerPort: 3306
@@ -247,8 +232,7 @@ objects:
               - "/bin/sh"
               - "-i"
               - "-c"
-              - MYSQL_PWD="$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u $MYSQL_USER -D $MYSQL_DATABASE
-                -e 'SELECT 1'
+              - mysql -h 127.0.0.1 -uroot -p"${MYSQL_ROOT_PASSWORD}" -D mysql -e 'SELECT 1'
             initialDelaySeconds: 5
             timeoutSeconds: 1
           livenessProbe:
@@ -257,14 +241,11 @@ objects:
             tcpSocket:
               port: 3306
           env:
-          - name: MYSQL_DATABASE
-            value: wordpress
-          - name: MYSQL_USER
-            value: "${DATABASE_USERNAME}"
           - name: MYSQL_ROOT_PASSWORD
-            value: "${DATABASE_ROOT_PASSWORD}"
-          - name: MYSQL_PASSWORD
-            value: "${DATABASE_PASSWORD}"
+            valueFrom:
+              secretKeyRef:
+                name: mariadb-pass
+                key: password
           volumeMounts:
           - name: data
             mountPath: "/var/lib/mysql"
@@ -287,7 +268,7 @@ objects:
 - kind: Service
   apiVersion: v1
   metadata:
-    name: "${APPLICATION_NAME}-db"
+    name: "mariadb"
     labels:
       app: "${APPLICATION_NAME}"
   spec:
@@ -298,7 +279,7 @@ objects:
       targetPort: 3306
     selector:
       app: "${APPLICATION_NAME}"
-      deploymentconfig: "${APPLICATION_NAME}-db"
+      deploymentconfig: "mariadb"
 - kind: Route
   apiVersion: v1
   metadata:

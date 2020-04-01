@@ -18,6 +18,6 @@ restic dump "${SNAPSHOT_ID}" /default-mariadb > backup.sql
 
 # Restore MariaDB data
 MARIADB_POD=$(oc get pods | grep db | grep Running | awk '{print $1}')
-oc cp backup.sql "$MARIADB_POD":/
-oc cp scripts/db_restore.sh "$MARIADB_POD":/
-oc exec "$MARIADB_POD" -- /db_restore.sh
+oc cp backup.sql "$MARIADB_POD":/var/lib/mysql
+oc cp scripts/db_restore.sh "$MARIADB_POD":/var/lib/mysql
+oc exec "$MARIADB_POD" -- /var/lib/mysql/db_restore.sh
