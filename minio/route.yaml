@@ -1,0 +1,17 @@
+kind: Route
+apiVersion: v1
+metadata:
+  name: minio
+  labels:
+    app: minio
+spec:
+  host: ''
+  to:
+    kind: Service
+    name: minio
+    weight: 100
+  port:
+    targetPort: 9000
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow

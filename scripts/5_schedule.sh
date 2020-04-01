@@ -2,11 +2,10 @@
 
 source scripts/environment.sh
 
-# Set Minikube context
-kubectl config use-context minikube
+eval "$(crc oc-env)"
 
 # Set the schedule
-kubectl apply -f k8up/schedule.yaml
+oc apply -f k8up/schedule.yaml
 
 # Watch how the number of snapshots grow
 watch restic snapshots

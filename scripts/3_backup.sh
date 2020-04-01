@@ -2,8 +2,7 @@
 
 # This script triggers a backup job
 
-# Set Minikube context
-kubectl config use-context minikube
+eval "$(crc oc-env)"
 
 # Trigger backup
-kubectl apply -f k8up/backup.yaml
+oc apply -f k8up/backup.yaml

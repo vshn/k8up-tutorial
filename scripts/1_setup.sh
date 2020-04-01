@@ -1,28 +1,26 @@
 #!/usr/bin/env bash
 
 # This script rebuilds the complete minikube cluster in one shot,
-# creating a ready-to-use WordPress + MariaDB + Minio environment.
+# creating a ready-to-use WordPress + MySQL + Minio environment.
 
 echo ""
-echo "••• Launching Minikube •••"
-minikube start --memory 4096 --disk-size 60g --cpus 4
-kubectl config use-context minikube
+echo "••• Launching Code Ready Containers •••"
+crc start --nameserver 1.1.1.1
+eval "$(crc oc-env)"
+oc login -u developer -p developer https://api.crc.testing:6443
+oc new-project k8up-tutorial
 
 echo ""
 echo "••• Installing Secrets •••"
-kubectl apply -k secrets
+oc apply -f secrets
 
 echo ""
 echo "••• Installing Minio •••"
-kubectl apply -k minio
+oc apply -f minio
 
 echo ""
-echo "••• Installing MariaDB •••"
-kubectl apply -k mariadb
-
-echo ""
-echo "••• Installing WordPress •••"
-kubectl apply -k wordpress
+echo "••• Installing MySQL & WordPress •••"
+oc process -f wordpress/deployment.yaml | oc apply -f -
 
 echo ""
 echo "••• Installing K8up •••"

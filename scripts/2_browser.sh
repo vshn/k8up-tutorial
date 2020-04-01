@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-# Open browser showing Minio
-minikube service minio
+eval "$(crc oc-env)"
 
-# Open browser showing WordPress
-minikube service wordpress
+echo "WordPress: http://$(oc get route | grep wordpress | awk '{print $2}')"
+echo "Minio: http://$(oc get route | grep minio | awk '{print $2}')"
