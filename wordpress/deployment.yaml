@@ -222,6 +222,8 @@ objects:
         labels:
           app: "${APPLICATION_NAME}"
           deploymentconfig: "${APPLICATION_NAME}-db"
+        annotations:
+          appuio.ch/backupcommand: /bin/bash -c 'mysqldump -u$MYSQL_USER -p"${MYSQL_PASSWORD}" --all-databases'
       spec:
         volumes:
         - name: data
@@ -332,6 +334,8 @@ objects:
     name: "${APPLICATION_NAME}-wordpress-data"
     labels:
       app: "${APPLICATION_NAME}"
+    annotations:
+      k8up.syn.tools/backup: "true"
   spec:
     accessModes:
     - "${WORDPRESS_VOLUME_TYPE}"
