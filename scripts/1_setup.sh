@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # This script rebuilds the complete minikube cluster in one shot,
-# creating a ready-to-use WordPress + MySQL + Minio environment.
+# creating a ready-to-use WordPress + MariaDB + Minio environment.
 
 echo ""
 echo "••• Launching Code Ready Containers •••"

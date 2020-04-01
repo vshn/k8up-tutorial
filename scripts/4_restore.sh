@@ -13,11 +13,11 @@ eval "$(crc oc-env)"
 restic snapshots --json --last --path /data/wordpress-pvc | python scripts/customize.py wordpress | oc apply -f -
 
 # Read SQL data from Restic into file
-SNAPSHOT_ID=$(restic snapshots --json --last --path /k8up-tutorial-mysql | jq -r '.[0].id')
+SNAPSHOT_ID=$(restic snapshots --json --last --path /k8up-tutorial-mariadb | jq -r '.[0].id')
 restic dump "${SNAPSHOT_ID}" /default-mariadb > backup.sql
 
 # Restore MariaDB data
-MARIADB_POD=$(oc get pods | grep db | grep Running | awk '{print $1}')
+MARIADB_POD=$(oc get pods | grep mariadb | grep Running | awk '{print $1}')
 oc cp backup.sql "$MARIADB_POD":/var/lib/mysql
 oc cp scripts/db_restore.sh "$MARIADB_POD":/var/lib/mysql
 oc exec "$MARIADB_POD" -- /var/lib/mysql/db_restore.sh

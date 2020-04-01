@@ -26,8 +26,8 @@ spec:
         persistentVolumeClaim:
           claimName: "mariadb-pvc"
       containers:
-      - name: mysql
-        image: mariadb/server:10.4
+      - name: mariadb
+        image: mariadb:10.4
         imagePullPolicy: Always
         ports:
         - containerPort: 3306

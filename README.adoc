@@ -166,7 +166,7 @@ Listing snapshots
 snapshots command:
 0 Snapshots
 backing up via mariadb stdin...
-Backup command: /bin/bash, -c, mysqldump -uroot -p"${MARIADB_ROOT_PASSWORD}" --all-databases
+Backup command: /bin/bash, -c, mysqldump -uroot -p"${MYSQL_ROOT_PASSWORD}" --all-databases
 done: 0.00%
 backup finished! new files: 1 changed files: 0 bytes added: 4184711
 Listing snapshots
@@ -345,7 +345,7 @@ Follow these steps to restore the database:
 
 . Execute the `mysql` command in the MariaDB pod to restore the database:
 +
-`mysql -uroot -p"${MARIADB_ROOT_PASSWORD}" < /backup.sql`
+`mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" < /backup.sql`
 
 Now refresh your WordPress browser window and you should see the previous state of the WordPress installation restored, working and looking as expected!
 
