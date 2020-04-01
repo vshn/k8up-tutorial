@@ -1,0 +1,17 @@
+kind: Route
+apiVersion: v1
+metadata:
+  name: "wordpress"
+  labels:
+    app: "wordpress"
+spec:
+  host: ''
+  to:
+    kind: Service
+    name: "wordpress"
+    weight: 100
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow

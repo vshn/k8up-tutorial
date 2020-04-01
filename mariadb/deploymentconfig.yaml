@@ -1,0 +1,63 @@
+kind: DeploymentConfig
+apiVersion: v1
+metadata:
+  name: "mariadb"
+  labels:
+    app: "wordpress"
+spec:
+  strategy:
+    type: Recreate
+  triggers:
+  - type: ConfigChange
+  replicas: 1
+  selector:
+    app: "wordpress"
+    deploymentconfig: "mariadb"
+  template:
+    metadata:
+      labels:
+        app: "wordpress"
+        deploymentconfig: "mariadb"
+      annotations:
+        appuio.ch/backupcommand: /bin/bash -c 'mysqldump -uroot -p"${MYSQL_ROOT_PASSWORD}" --all-databases'
+    spec:
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: "mariadb-pvc"
+      containers:
+      - name: mysql
+        image: mariadb/server:10.4
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3306
+          protocol: TCP
+        resources:
+          limits:
+            memory: 512Mi
+        readinessProbe:
+          timeoutSeconds: 1
+          initialDelaySeconds: 5
+          exec:
+            command:
+            - "/bin/sh"
+            - "-i"
+            - "-c"
+            - mysql -h 127.0.0.1 -uroot -p"${MYSQL_ROOT_PASSWORD}" -D mysql -e 'SELECT 1'
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+        livenessProbe:
+          timeoutSeconds: 1
+          initialDelaySeconds: 30
+          tcpSocket:
+            port: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-pass
+              key: password
+        volumeMounts:
+        - name: data
+          mountPath: "/var/lib/mysql"
+          subPath: mysql

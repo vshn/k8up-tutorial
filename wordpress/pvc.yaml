@@ -1,0 +1,14 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: "wordpress-pvc"
+  labels:
+    app: "wordpress"
+  annotations:
+    k8up.syn.tools/backup: "true"
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

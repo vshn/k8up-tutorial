@@ -19,8 +19,12 @@ echo "••• Installing Minio •••"
 oc apply -f minio
 
 echo ""
-echo "••• Installing MySQL & WordPress •••"
-oc process -f wordpress/deployment.yaml | oc apply -f -
+echo "••• Installing MariaDB •••"
+oc apply -f mariadb
+
+echo ""
+echo "••• Installing WordPress •••"
+oc apply -f wordpress
 
 echo ""
 echo "••• Installing K8up •••"

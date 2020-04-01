@@ -1,0 +1,81 @@
+kind: DeploymentConfig
+apiVersion: v1
+metadata:
+  name: "wordpress"
+  labels:
+    app: "wordpress"
+spec:
+  strategy:
+    type: Recreate
+  triggers:
+  - type: ConfigChange
+  - type: ImageChange
+    imageChangeParams:
+      automatic: true
+      containerNames:
+      - wordpress
+      from:
+        kind: ImageStreamTag
+        name: "wordpress-img:latest"
+  replicas: 1
+  selector:
+    app: "wordpress"
+    deploymentconfig: "wordpress"
+  template:
+    metadata:
+      labels:
+        app: "wordpress"
+        deploymentconfig: "wordpress"
+    spec:
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: "wordpress-pvc"
+      containers:
+      - name: wordpress
+        image: "wordpress-img"
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        resources:
+          limits:
+            memory: 512Mi
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: "/wp-admin/install.php"
+            port: 8080
+            scheme: HTTP
+            httpHeaders:
+            - name: X-Forwarded-Proto
+              value: https
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: "/wp-admin/install.php"
+            port: 8080
+            scheme: HTTP
+            httpHeaders:
+            - name: X-Forwarded-Proto
+              value: https
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        env:
+        - name: WORDPRESS_DB_NAME
+          value: wordpress
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-pass
+              key: password
+        - name: WORDPRESS_DB_HOST
+          value: "mariadb"
+        - name: WORDPRESS_TABLE_PREFIX
+          value: wp_
+        volumeMounts:
+        - name: data
+          mountPath: "/var/www/html"
