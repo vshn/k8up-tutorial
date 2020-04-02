@@ -5,7 +5,7 @@ metadata:
   labels:
     app: "wordpress"
 spec:
-  host: ''
+  host: 'wordpress.apps-crc.testing'
   to:
     kind: Service
     name: "wordpress"

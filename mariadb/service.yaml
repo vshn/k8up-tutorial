@@ -1,9 +1,9 @@
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
-  name: "mariadb"
+  name: mariadb
   labels:
-    app: "wordpress"
+    app: wordpress
 spec:
   ports:
   - name: 3306-tcp
@@ -11,5 +11,5 @@ spec:
     port: 3306
     targetPort: 3306
   selector:
-    app: "wordpress"
-    deploymentconfig: "mariadb"
+    app: wordpress
+    tier: mariadb

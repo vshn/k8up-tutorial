@@ -1,12 +1,12 @@
-kind: PersistentVolumeClaim
 apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
-  name: "mariadb-pvc"
+  name: mariadb-pvc
   labels:
-    app: "wordpress"
+    app: wordpress
 spec:
   accessModes:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 10Gi

@@ -5,7 +5,7 @@ metadata:
   labels:
     app: minio
 spec:
-  host: ''
+  host: 'minio.apps-crc.testing'
   to:
     kind: Service
     name: minio
