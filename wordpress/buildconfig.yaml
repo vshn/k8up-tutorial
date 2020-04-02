@@ -36,7 +36,7 @@ spec:
       forcePull: true
       from:
         kind: DockerImage
-        name: wordpress:5-apache
+        name: wordpress:5.4-apache
     type: Docker
   triggers:
   - type: ConfigChange
