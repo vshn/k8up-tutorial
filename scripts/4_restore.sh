@@ -10,7 +10,8 @@ source scripts/environment.sh
 eval "$(crc oc-env)"
 
 # Restore WordPress PVC
-restic snapshots --json --last --path /data/wordpress-pvc | python scripts/customize.py wordpress | oc apply -f -
+SNAPSHOT_ID=$(restic snapshots --json --last --path /data/wordpress-pvc | jq -r '.[0].id')
+scripts/customize.py wordpress "${SNAPSHOT_ID}" | oc apply -f -
 
 # Read SQL data from Restic into file
 SNAPSHOT_ID=$(restic snapshots --json --last --path /k8up-tutorial-mariadb | jq -r '.[0].id')
