@@ -1,45 +1,25 @@
-kind: DeploymentConfig
-apiVersion: v1
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: "wordpress"
+  name: wordpress
   labels:
-    app: "wordpress"
+    app: wordpress
 spec:
+  selector:
+    matchLabels:
+      app: wordpress
+      tier: frontend
   strategy:
     type: Recreate
-  triggers:
-  - type: ConfigChange
-  - type: ImageChange
-    imageChangeParams:
-      automatic: true
-      containerNames:
-      - wordpress
-      from:
-        kind: ImageStreamTag
-        name: "wordpress-img:latest"
-  replicas: 1
-  selector:
-    app: "wordpress"
-    deploymentconfig: "wordpress"
   template:
     metadata:
       labels:
-        app: "wordpress"
-        deploymentconfig: "wordpress"
+        app: wordpress
+        tier: frontend
     spec:
-      volumes:
-      - name: data
-        persistentVolumeClaim:
-          claimName: "wordpress-pvc"
       containers:
-      - name: wordpress
-        image: "wordpress-img"
-        ports:
-        - containerPort: 8080
-          protocol: TCP
-        resources:
-          limits:
-            memory: 512Mi
+      - image: vshn/wordpress-openshift:5.4-apache
+        name: wordpress
         readinessProbe:
           failureThreshold: 3
           httpGet:
@@ -65,17 +45,20 @@ spec:
           successThreshold: 1
           timeoutSeconds: 1
         env:
-        - name: WORDPRESS_DB_NAME
-          value: wordpress
+        - name: WORDPRESS_DB_HOST
+          value: mariadb
         - name: WORDPRESS_DB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: mariadb-pass
               key: password
-        - name: WORDPRESS_DB_HOST
-          value: "mariadb"
-        - name: WORDPRESS_TABLE_PREFIX
-          value: wp_
+        ports:
+        - containerPort: 8080
+          name: wordpress
         volumeMounts:
         - name: data
-          mountPath: "/var/www/html"
+          mountPath: /var/www/html
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: wordpress-pvc

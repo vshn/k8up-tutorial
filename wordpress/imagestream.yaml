@@ -1,6 +1,0 @@
-kind: ImageStream
-apiVersion: v1
-metadata:
-  name: "wordpress-img"
-  labels:
-    app: "wordpress"

@@ -7,7 +7,10 @@ echo ""
 echo "••• Launching Code Ready Containers •••"
 crc start --nameserver 1.1.1.1 --memory 12288
 eval "$(crc oc-env)"
-oc login -u developer -p developer https://api.crc.testing:6443
+
+echo ""
+echo "••• Login as 'kubeadmin' (copy the password shown in the output of `crc start`) •••"
+oc login -u kubeadmin https://api.crc.testing:6443
 oc new-project k8up-tutorial
 
 echo ""

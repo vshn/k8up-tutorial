@@ -1,5 +1,5 @@
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
   name: "wordpress"
   labels:
@@ -12,4 +12,3 @@ spec:
     targetPort: 8080
   selector:
     app: "wordpress"
-    deploymentconfig: "wordpress"
